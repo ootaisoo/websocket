@@ -29,6 +29,7 @@ class MyWebSocketListener(var messages : MutableList<String>) : WebSocketListene
     }
 
     override fun onMessage(webSocket: WebSocket?, text: String) {
+        Log.e(TAG, "onMessage()")
         messages.add(text)
     }
 
