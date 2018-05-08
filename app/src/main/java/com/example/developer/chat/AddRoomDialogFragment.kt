@@ -52,12 +52,16 @@ class AddRoomDialogFragment : DialogFragment() {
         val dialog = builder.setView(mView)
             .setTitle("Enter Room Name")
             .setPositiveButton("OK", null)
+            .setNegativeButton("Cancel", null)
             .create()
 
         dialog.setOnShowListener {
-            val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            button.setOnClickListener {
-                listener?.onDialogPositiveClick(mView.room_name_dialog.text.toString());
+            val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            okButton.setOnClickListener {
+                listener?.onDialogPositiveClick(mView.room_name_dialog.text.toString())
+                dialog.dismiss() }
+            val cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            cancelButton.setOnClickListener {
                 dialog.dismiss() }
         }
 

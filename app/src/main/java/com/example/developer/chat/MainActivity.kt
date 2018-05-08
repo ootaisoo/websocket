@@ -1,18 +1,16 @@
 package com.example.developer.chat
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
-import java.util.concurrent.TimeUnit
-import android.view.inputmethod.EditorInfo
-import android.widget.TextView
 import okhttp3.*
 import okio.ByteString
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,16 +27,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var messages: MutableList<String>
     private lateinit var recyclerView: RecyclerView
     private lateinit var linearLayoutManager : LinearLayoutManager
+    private lateinit var roomName : String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        roomName = intent.getStringExtra("roomName")
+        messages = SelectRoomActivity.chats.get(roomName)!!
+        Log.e(TAG, roomName);
+
+
         editText = findViewById(R.id.edit_text)
         sendButton = findViewById(R.id.send)
 
-        messages = ArrayList()
         messageAdapter = MessageAdapter(messages)
 
         recyclerView = findViewById(R.id.output)
@@ -55,11 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         val webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket?, response: Response?) {
-                Log.e(TAG, "CONNECTION")
             }
 
             override fun onMessage(webSocket: WebSocket?, text: String) {
-                Log.e(TAG, "onMessage()")
                 messageAdapter.add(text)
             }
 
@@ -82,9 +83,13 @@ class MainActivity : AppCompatActivity() {
 
         sendButton.setOnClickListener { b ->
             webSocket?.send(editText.getText().toString().trim())
-
         }
 
         client.dispatcher().executorService().shutdown();
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SelectRoomActivity.chats.put(this@MainActivity.roomName, messages)
     }
 }
