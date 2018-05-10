@@ -1,26 +1,21 @@
 package com.example.developer.chat
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import okhttp3.*
-import okio.ByteString
-import java.util.concurrent.TimeUnit
+import com.google.gson.Gson
+import okhttp3.WebSocket
 
-
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), {
 
     companion object {
         @JvmStatic
         private val TAG = MainActivity::class.java.simpleName
     }
 
-    private lateinit var client : OkHttpClient
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var editText : EditText
     private lateinit var sendButton : Button
@@ -28,16 +23,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var linearLayoutManager : LinearLayoutManager
     private lateinit var roomName : String
+    private lateinit var webSocket: WebSocket
+    private lateinit var message : String
 
+    val singleton = WebSocketSingleton.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        webSocket = singleton.webSocket
+
         roomName = intent.getStringExtra("roomName")
         messages = SelectRoomActivity.chats.get(roomName)!!
-        Log.e(TAG, roomName);
-
 
         editText = findViewById(R.id.edit_text)
         sendButton = findViewById(R.id.send)
@@ -50,46 +48,17 @@ class MainActivity : AppCompatActivity() {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.adapter = messageAdapter
 
-        client = OkHttpClient.Builder()
-            .readTimeout(0, TimeUnit.MILLISECONDS)
-            .build();
-
-        var request : Request = Request.Builder().url("ws://10.0.2.2:5000").build()
-
-        val webSocket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket?, response: Response?) {
-            }
-
-            override fun onMessage(webSocket: WebSocket?, text: String) {
-                messageAdapter.add(text)
-            }
-
-            override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) {
-                super.onMessage(webSocket, bytes)
-            }
-
-            override fun onClosing(webSocket: WebSocket?, code: Int, reason: String?) {
-                webSocket?.close(1000, null)
-            }
-
-            override fun onClosed(webSocket: WebSocket?, code: Int, reason: String?) {
-                super.onClosed(webSocket, code, reason)
-            }
-
-            override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
-                t?.printStackTrace();
-            }
-        })
+        message = editText.text.toString().trim()
 
         sendButton.setOnClickListener { b ->
-            webSocket?.send(editText.getText().toString().trim())
+            val gson = Gson()
+            webSocket.send(gson.toJson(Message(roomName, message)))
+            messageAdapter.add(message)
         }
-
-        client.dispatcher().executorService().shutdown();
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        SelectRoomActivity.chats.put(this@MainActivity.roomName, messages)
+        singleton.client.dispatcher().executorService().shutdown();
     }
 }
