@@ -12,19 +12,20 @@ import android.view.View
 import android.widget.Button
 import com.google.gson.Gson
 import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.WeakHashMap
 
 class SelectRoomActivity : AppCompatActivity(), AddRoomDialogFragment.NoticeDialogListener,
-    RoomsAdapter.OnRoomSelectedListener, MyWebSocketListener.OnMessageReceivedListener {
+    RoomsAdapter.OnRoomSelectedListener {
 
     companion object {
 
         private val TAG = SelectRoomActivity::class.java.simpleName
 
-        private val DIALOG_ADD_ROOM = "dialog_check_phrase"
+        private val DIALOG_ADD_ROOM = "dialog_add_room"
         internal var chats: MutableMap<String, MutableList<String>> = HashMap()
     }
 
@@ -32,7 +33,6 @@ class SelectRoomActivity : AppCompatActivity(), AddRoomDialogFragment.NoticeDial
     private lateinit var button: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var rooms: MutableList<String>
-    private lateinit var messagesToStore: MutableList<String>
     private lateinit var roomsAdapter: RoomsAdapter
 
     val singleton = WebSocketSingleton.getInstance()
@@ -72,16 +72,6 @@ class SelectRoomActivity : AppCompatActivity(), AddRoomDialogFragment.NoticeDial
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("roomName", roomName)
         startActivity(intent)
-    }
-
-    override fun onMessageRecived(text: String) {
-        Log.e(TAG, "12345")
-        val gson = Gson()
-        val message = gson.fromJson(text, Message::class.java)
-
-        messagesToStore = SelectRoomActivity.chats.get(message.roomName)!!
-        messagesToStore.add(message.message)
-        SelectRoomActivity.chats.put(message.roomName, messagesToStore)
     }
 
     override fun onDestroy() {

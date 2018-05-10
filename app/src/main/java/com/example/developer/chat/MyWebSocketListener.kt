@@ -15,6 +15,8 @@ class MyWebSocketListener : WebSocketListener() {
         private val TAG = MyWebSocketListener::class.java.simpleName
     }
 
+    private lateinit var messagesToStore: MutableList<String>
+
     interface OnMessageReceivedListener {
         fun onMessageRecived(text : String)
     }
@@ -30,7 +32,14 @@ class MyWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket?, text: String) {
         Log.e(TAG, "onMessage()")
-        listener.onMessageRecived(text)
+        val gson = Gson()
+        val message = gson.fromJson(text, Message::class.java)
+
+        messagesToStore = SelectRoomActivity.chats.get(message.roomName)!!
+        Log.e(TAG, SelectRoomActivity.chats.toString())
+        messagesToStore.add(message.message)
+        Log.e(TAG, message.message)
+        SelectRoomActivity.chats.put(message.roomName, messagesToStore)
     }
 
     override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) {

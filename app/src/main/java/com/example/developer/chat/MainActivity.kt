@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import com.google.gson.Gson
@@ -48,10 +49,11 @@ class MainActivity : AppCompatActivity() {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.adapter = messageAdapter
 
-        message = editText.text.toString().trim()
+
 
         sendButton.setOnClickListener { b ->
             val gson = Gson()
+            message = editText.text.toString().trim()
             webSocket.send(gson.toJson(Message(roomName, message)))
             messageAdapter.add(message)
         }
