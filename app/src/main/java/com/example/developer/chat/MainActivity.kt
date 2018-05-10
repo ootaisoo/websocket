@@ -9,7 +9,7 @@ import android.widget.EditText
 import com.google.gson.Gson
 import okhttp3.WebSocket
 
-class MainActivity : AppCompatActivity(), {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         @JvmStatic
