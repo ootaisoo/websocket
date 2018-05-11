@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import com.google.gson.Gson
@@ -27,12 +26,13 @@ class MainActivity : AppCompatActivity(), MyWebSocketListener.OnMessageReceivedL
     private lateinit var webSocket: WebSocket
     private lateinit var message : String
 
-    val singleton = WebSocketSingleton.getInstance()
+    val singleton = WebSocketSingleton.getInstance(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        singleton.listener?.onMessageReceivedlistener = this
         webSocket = singleton.webSocket
 
         roomName = intent.getStringExtra("roomName")
@@ -57,12 +57,6 @@ class MainActivity : AppCompatActivity(), MyWebSocketListener.OnMessageReceivedL
     }
 
     override fun onMessageReceived() {
-        messageAdapter.notifyDataSetChanged()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.e(TAG, "onDestroy()")
-        singleton.client.dispatcher().executorService().shutdown();
+        messageAdapter.notifyItemInserted(messages.indexOf(message))
     }
 }
