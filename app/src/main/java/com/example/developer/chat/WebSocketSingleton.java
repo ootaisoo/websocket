@@ -16,7 +16,11 @@ public class WebSocketSingleton {
 
     private MyWebSocketListener listener;
     private WebSocket webSocket;
-    OkHttpClient client;
+    private OkHttpClient client;
+
+    public MyWebSocketListener getListener() {
+        return listener;
+    }
 
     public WebSocket getWebSocket() {
         return webSocket;

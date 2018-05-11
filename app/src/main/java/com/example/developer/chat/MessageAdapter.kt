@@ -22,11 +22,6 @@ class MessageAdapter(private var messages: MutableList<String>) : RecyclerView.A
         return messages.size
     }
 
-    fun add(item: String) {
-        messages.add(item)
-        notifyItemInserted(messages.indexOf(item))
-    }
-
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         var message = messages.get(position)
         holder.textView.setText(message)

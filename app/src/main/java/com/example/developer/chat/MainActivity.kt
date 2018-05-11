@@ -10,7 +10,7 @@ import android.widget.EditText
 import com.google.gson.Gson
 import okhttp3.WebSocket
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MyWebSocketListener.OnMessageReceivedListener {
 
     companion object {
         @JvmStatic
@@ -49,18 +49,20 @@ class MainActivity : AppCompatActivity() {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.adapter = messageAdapter
 
-
-
         sendButton.setOnClickListener { b ->
             val gson = Gson()
             message = editText.text.toString().trim()
             webSocket.send(gson.toJson(Message(roomName, message)))
-            messageAdapter.add(message)
         }
+    }
+
+    override fun onMessageReceived() {
+        messageAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.e(TAG, "onDestroy()")
         singleton.client.dispatcher().executorService().shutdown();
     }
 }

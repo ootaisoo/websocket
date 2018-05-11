@@ -1,12 +1,10 @@
 package com.example.developer.chat
 
-import android.util.Log
 import com.google.gson.Gson
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-
 
 class MyWebSocketListener : WebSocketListener() {
 
@@ -18,11 +16,11 @@ class MyWebSocketListener : WebSocketListener() {
     private lateinit var messagesToStore: MutableList<String>
 
     interface OnMessageReceivedListener {
-        fun onMessageRecived(text : String)
+        fun onMessageReceived()
     }
 
     var listener = object : OnMessageReceivedListener{
-        override fun onMessageRecived(text : String) {
+        override fun onMessageReceived() {
         }
     }
 
@@ -31,15 +29,11 @@ class MyWebSocketListener : WebSocketListener() {
     }
 
     override fun onMessage(webSocket: WebSocket?, text: String) {
-        Log.e(TAG, "onMessage()")
         val gson = Gson()
         val message = gson.fromJson(text, Message::class.java)
 
-        messagesToStore = SelectRoomActivity.chats.get(message.roomName)!!
-        Log.e(TAG, SelectRoomActivity.chats.toString())
-        messagesToStore.add(message.message)
-        Log.e(TAG, message.message)
-        SelectRoomActivity.chats.put(message.roomName, messagesToStore)
+        SelectRoomActivity.chats.get(message.roomName)?.add(message.message)
+        listener.onMessageReceived()
     }
 
     override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) {
