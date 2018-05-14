@@ -18,7 +18,7 @@ class WebSocketSingleton private constructor(context: Context) {
         private var instance : WebSocketSingleton? = null
 
         fun  getInstance(context: Context): WebSocketSingleton {
-            if (instance == null)  // NOT thread safe!
+            if (instance == null)
                 instance = WebSocketSingleton(context)
 
             return instance!!
